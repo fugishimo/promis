@@ -13,7 +13,7 @@ const Index = () => {
       <div className="min-h-screen flex w-full bg-neutral-50">
         <MainNavigation />
         <main className="flex-1 p-6 ml-[240px]">
-          <div className="max-w-[1200px] mx-auto">
+          <div className="max-w-[1400px] mx-auto">
             <header className="mb-8">
               <div className="flex items-center justify-between">
                 <h1 className="text-4xl font-bold text-neutral-900">Promis</h1>
@@ -49,7 +49,7 @@ const Index = () => {
                 </button>
               </div>
             </header>
-            <div className="flex gap-8">
+            <div className="flex gap-6">
               <Feed activeTab={activeTab} />
               <RightSidebar />
             </div>
