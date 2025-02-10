@@ -12,7 +12,7 @@ const Index = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-neutral-50">
         <MainNavigation />
-        <main className="flex-1 p-6 ml-[240px]">
+        <main className="flex-1 p-6">
           <div className="max-w-[1400px] mx-auto">
             <header className="mb-8">
               <div className="flex items-center justify-between">
