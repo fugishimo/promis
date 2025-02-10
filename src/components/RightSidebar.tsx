@@ -7,7 +7,7 @@ const topAnalysts = [
 
 const RightSidebar = () => {
   return (
-    <aside className="w-80 space-y-6">
+    <aside className="w-[300px] min-w-[300px] space-y-4">
       <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200">
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">
           Welcome to Promis

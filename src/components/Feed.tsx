@@ -10,7 +10,7 @@ const mockPosts = [
     id: 1,
     title: "BTC/USD Technical Analysis",
     author: "CryptoAnalyst",
-    content: "Bullish divergence forming on the 4H timeframe...",
+    content: "Bullish divergence forming on the 4H timeframe. The RSI indicator shows a potential reversal pattern, with key support levels at $45,000 and resistance at $48,500. Volume profile indicates accumulation in this range. Watch for a breakout above the descending trendline for confirmation of trend reversal.",
     votes: 128,
     comments: 24,
     timestamp: "2h ago",
@@ -19,7 +19,7 @@ const mockPosts = [
     id: 2,
     title: "SPX Weekly Outlook",
     author: "MarketWizard",
-    content: "Key resistance levels to watch this week...",
+    content: "Key resistance levels to watch this week: 4,800 acting as immediate resistance, followed by the psychological level of 5,000. Market breadth indicators suggest potential consolidation before the next leg up. Sector rotation shows defensive positioning, with utilities and consumer staples outperforming. Keep an eye on the VIX for signs of increased volatility.",
     votes: 95,
     comments: 18,
     timestamp: "4h ago",
@@ -32,7 +32,7 @@ const Feed = ({ activeTab }: FeedProps) => {
       {mockPosts.map((post) => (
         <article
           key={post.id}
-          className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200 animate-slideIn"
+          className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200 animate-slideIn min-h-[250px]"
         >
           <div className="flex gap-4">
             <div className="flex flex-col items-center space-y-2">
@@ -52,10 +52,10 @@ const Feed = ({ activeTab }: FeedProps) => {
                 <span className="text-sm text-neutral-500">•</span>
                 <span className="text-sm text-neutral-500">{post.timestamp}</span>
               </div>
-              <h2 className="text-xl font-semibold text-neutral-900 mb-2">
+              <h2 className="text-xl font-semibold text-neutral-900 mb-4">
                 {post.title}
               </h2>
-              <p className="text-neutral-600 mb-4">{post.content}</p>
+              <p className="text-neutral-600 mb-6 leading-relaxed">{post.content}</p>
               <div className="flex items-center space-x-4">
                 <button className="flex items-center space-x-2 text-neutral-500 hover:text-neutral-700 transition-colors">
                   <MessageCircle className="w-5 h-5" />
