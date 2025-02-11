@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainNavigation from "@/components/MainNavigation";
 import { MessageCircle, TrendingUp, Newspaper } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface MarketUpdate {
   id: number;

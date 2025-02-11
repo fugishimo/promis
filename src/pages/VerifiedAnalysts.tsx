@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainNavigation from "@/components/MainNavigation";
 import { Search, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type AnalystTier = "gold" | "silver" | "bronze";
 
