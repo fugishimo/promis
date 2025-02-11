@@ -13,11 +13,11 @@ import {
 
 const navigationItems = [
   { title: "Home", icon: Home, url: "/" },
-  { title: "Trending Charts", icon: TrendingUp, url: "#trending" },
-  { title: "Publish", icon: PenTool, url: "#publish" },
-  { title: "Live Markets", icon: BarChart2, url: "#markets" },
-  { title: "Verified Analysts", icon: Users, url: "#analysts" },
-  { title: "Settings", icon: Settings, url: "#settings" },
+  { title: "Trending Charts", icon: TrendingUp, url: "/trending" },
+  { title: "Publish", icon: PenTool, url: "/publish" },
+  { title: "Live Markets", icon: BarChart2, url: "/live-markets" },
+  { title: "Verified Analysts", icon: Users, url: "/verified-analysts" },
+  { title: "Settings", icon: Settings, url: "/settings" },
 ];
 
 const MainNavigation = () => {
