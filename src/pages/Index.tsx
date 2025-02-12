@@ -16,7 +16,7 @@ const Index = () => {
           <div className="max-w-[1400px] mx-auto">
             <header className="mb-8">
               <div className="flex items-center justify-between">
-                <h1 className="text-4xl font-bold text-neutral-900">Promis</h1>
+                <h1 className="text-4xl font-bold text-neutral-900"></h1>
                 <div className="flex items-center space-x-4">
                   <button className="px-4 py-2 text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors">
                     Sign In

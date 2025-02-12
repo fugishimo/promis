@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainNavigation from "@/components/MainNavigation";
@@ -17,7 +16,7 @@ const Publish = () => {
         <MainNavigation />
         <main className="flex-1 p-6">
           <div className="max-w-3xl mx-auto">
-            <header className="mb-8">
+            <header className="mb-8 text-center">
               <h1 className="text-4xl font-bold text-neutral-900">Publish Analysis</h1>
               <p className="text-neutral-500 mt-2">Share your market insights with the community</p>
             </header>
