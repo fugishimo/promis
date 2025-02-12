@@ -10,13 +10,13 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-neutral-50">
+      <div className="min-h-screen flex w-full bg-background">
         <MainNavigation />
         <main className="flex-1 p-6">
           <div className="max-w-[1400px] mx-auto">
             <header className="mb-8">
               <div className="flex items-center justify-between">
-                <h1 className="text-4xl font-bold text-neutral-900"></h1>
+                <h1 className="text-4xl font-bold text-foreground"></h1>
                 <div className="flex items-center space-x-4">
                   <button className="px-4 py-2 text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors">
                     Sign In
@@ -32,7 +32,7 @@ const Index = () => {
                   className={`px-4 py-2 rounded-lg transition-colors ${
                     activeTab === "following"
                       ? "bg-primary text-white"
-                      : "text-neutral-600 hover:bg-neutral-100"
+                      : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   Following
@@ -42,7 +42,7 @@ const Index = () => {
                   className={`px-4 py-2 rounded-lg transition-colors ${
                     activeTab === "forYou"
                       ? "bg-primary text-white"
-                      : "text-neutral-600 hover:bg-neutral-100"
+                      : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   For You
