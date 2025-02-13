@@ -4,17 +4,17 @@ import { Wallet, LogIn } from "lucide-react";
 
 const Login = () => {
   return (
-    <div className="min-h-screen bg-[#1A1F2C] flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8 p-8 bg-[#221F26] rounded-xl">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-md space-y-8 p-8 bg-card rounded-xl border border-border shadow-lg">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">Welcome back</h1>
-          <p className="text-neutral-400">Sign in to your account</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Welcome back</h1>
+          <p className="text-muted-foreground">Sign in to your account</p>
         </div>
 
         <div className="space-y-4">
           <Button
             variant="outline"
-            className="w-full bg-white text-black hover:bg-neutral-100 font-medium"
+            className="w-full bg-white hover:bg-neutral-50 text-black font-medium"
             onClick={() => console.log("Google login")}
           >
             <img
@@ -27,10 +27,10 @@ const Login = () => {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-neutral-700" />
+              <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#221F26] px-2 text-neutral-400">
+              <span className="bg-card px-2 text-muted-foreground">
                 Or continue with
               </span>
             </div>
@@ -39,7 +39,7 @@ const Login = () => {
           <div className="grid grid-cols-1 gap-4">
             <Button
               variant="outline"
-              className="w-full border-neutral-700 hover:bg-neutral-800 text-white"
+              className="w-full hover:bg-muted"
               onClick={() => console.log("Coinbase Wallet")}
             >
               <img
@@ -52,7 +52,7 @@ const Login = () => {
             
             <Button
               variant="outline"
-              className="w-full border-neutral-700 hover:bg-neutral-800 text-white"
+              className="w-full hover:bg-muted"
               onClick={() => console.log("MetaMask")}
             >
               <img
@@ -65,7 +65,7 @@ const Login = () => {
             
             <Button
               variant="outline"
-              className="w-full border-neutral-700 hover:bg-neutral-800 text-white"
+              className="w-full hover:bg-muted"
               onClick={() => console.log("Phantom")}
             >
               <img
@@ -78,7 +78,7 @@ const Login = () => {
           </div>
         </div>
 
-        <p className="text-center text-sm text-neutral-400">
+        <p className="text-center text-sm text-muted-foreground">
           By continuing, you agree to our{" "}
           <a href="/terms" className="text-primary hover:underline">
             Terms of Service
