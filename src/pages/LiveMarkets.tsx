@@ -1,25 +1,10 @@
+
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainNavigation from "@/components/MainNavigation";
-import { TrendingUp, Newspaper, Plus, MoreHorizontal, PieChart, GripVertical } from "lucide-react";
+import { Newspaper, Plus, MoreHorizontal, PieChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import Feed from "@/components/Feed";
 
 type TimePeriod = "24h" | "7d" | "90d" | "1y" | "all";
 
@@ -34,75 +19,10 @@ interface WatchlistItem {
   icon?: string;
 }
 
-const SortableWatchlistItem = ({ item }: { item: WatchlistItem }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: item.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="px-4 py-2 hover:bg-neutral-50 grid grid-cols-[auto,1fr,1fr,1fr,1fr] gap-4 text-sm items-center group"
-    >
-      <button
-        className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="w-4 h-4 text-neutral-400" />
-      </button>
-      <div className="font-medium text-neutral-900">
-        {item.symbol}
-      </div>
-      <div className="text-right text-neutral-900">
-        {item.price.toLocaleString()}
-      </div>
-      <div className={`text-right ${item.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-        {item.change >= 0 ? '+' : ''}{item.change}
-      </div>
-      <div className={`text-right ${item.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-        {item.changePercent >= 0 ? '+' : ''}{item.changePercent}%
-      </div>
-    </div>
-  );
-};
-
-const SortableCategory = ({ type, children }: { type: string; children: React.ReactNode }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: type });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      {children}
-    </div>
-  );
-};
-
 const LiveMarkets = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("24h");
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(["STOCKS", "FUTURES", "CRYPTO"]));
-  const [categories, setCategories] = useState(["STOCKS", "FUTURES", "FOREX", "CRYPTO"]);
-  const [items, setItems] = useState<WatchlistItem[]>([
+  const [items] = useState<WatchlistItem[]>([
     {
       id: "1",
       type: "STOCKS",
@@ -132,39 +52,6 @@ const LiveMarkets = () => {
     }
   ]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleItemDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    if (over && active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  };
-
-  const handleCategoryDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    if (over && active.id !== over.id) {
-      setCategories((categories) => {
-        const oldIndex = categories.indexOf(String(active.id));
-        const newIndex = categories.indexOf(String(over.id));
-        
-        return arrayMove(categories, oldIndex, newIndex);
-      });
-    }
-  };
-
   const toggleType = (type: string) => {
     const newExpandedTypes = new Set(expandedTypes);
     if (newExpandedTypes.has(type)) {
@@ -176,7 +63,7 @@ const LiveMarkets = () => {
   };
 
   // Filter out empty sections
-  const activeTypes = categories.filter(type => 
+  const types = ["STOCKS", "FUTURES", "FOREX", "CRYPTO"].filter(type => 
     items.some(item => item.type === type)
   );
 
@@ -192,9 +79,7 @@ const LiveMarkets = () => {
             </header>
 
             <div className="flex gap-6">
-              <div className="flex-1">
-                {/* Main content area */}
-              </div>
+              <Feed activeTab="forYou" />
 
               <aside className="w-[400px] space-y-6">
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200">
@@ -251,58 +136,46 @@ const LiveMarkets = () => {
                     </div>
                   </div>
                   <div className="divide-y divide-neutral-100">
-                    <div className="px-4 py-2 text-sm text-neutral-500 grid grid-cols-[auto,1fr,1fr,1fr,1fr] gap-4">
-                      <div className="w-4"></div>
+                    <div className="px-4 py-2 text-sm text-neutral-500 grid grid-cols-[1fr,1fr,1fr,1fr] gap-4">
                       <div>Symbol</div>
                       <div className="text-right">Last</div>
                       <div className="text-right">Chg</div>
                       <div className="text-right">Chg%</div>
                     </div>
-                    <DndContext
-                      sensors={sensors}
-                      collisionDetection={closestCenter}
-                      onDragEnd={handleCategoryDragEnd}
-                    >
-                      <SortableContext
-                        items={activeTypes}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        {activeTypes.map((type) => (
-                          <SortableCategory key={type} type={type}>
-                            <div>
-                              <button
-                                onClick={() => toggleType(type)}
-                                className="w-full px-4 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50 flex items-center group"
-                              >
-                                <GripVertical className="w-4 h-4 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity mr-2" />
-                                <span className="transform transition-transform duration-200" style={{
-                                  transform: expandedTypes.has(type) ? 'rotate(0deg)' : 'rotate(-90deg)'
-                                }}>▼</span>
-                                <span className="ml-2">{type}</span>
-                              </button>
-                              {expandedTypes.has(type) && (
-                                <DndContext
-                                  sensors={sensors}
-                                  collisionDetection={closestCenter}
-                                  onDragEnd={handleItemDragEnd}
-                                >
-                                  <SortableContext
-                                    items={items.filter(item => item.type === type).map(item => item.id)}
-                                    strategy={verticalListSortingStrategy}
-                                  >
-                                    {items
-                                      .filter(item => item.type === type)
-                                      .map((item) => (
-                                        <SortableWatchlistItem key={item.id} item={item} />
-                                      ))}
-                                  </SortableContext>
-                                </DndContext>
-                              )}
+                    {types.map((type) => (
+                      <div key={type}>
+                        <button
+                          onClick={() => toggleType(type)}
+                          className="w-full px-4 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50 flex items-center"
+                        >
+                          <span className="transform transition-transform duration-200" style={{
+                            transform: expandedTypes.has(type) ? 'rotate(0deg)' : 'rotate(-90deg)'
+                          }}>▼</span>
+                          <span className="ml-2">{type}</span>
+                        </button>
+                        {expandedTypes.has(type) && items
+                          .filter(item => item.type === type)
+                          .map((item) => (
+                            <div
+                              key={item.id}
+                              className="px-4 py-2 hover:bg-neutral-50 grid grid-cols-[1fr,1fr,1fr,1fr] gap-4 text-sm items-center"
+                            >
+                              <div className="font-medium text-neutral-900">
+                                {item.symbol}
+                              </div>
+                              <div className="text-right text-neutral-900">
+                                {item.price.toLocaleString()}
+                              </div>
+                              <div className={`text-right ${item.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {item.change >= 0 ? '+' : ''}{item.change}
+                              </div>
+                              <div className={`text-right ${item.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {item.changePercent >= 0 ? '+' : ''}{item.changePercent}%
+                              </div>
                             </div>
-                          </SortableCategory>
-                        ))}
-                      </SortableContext>
-                    </DndContext>
+                          ))}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </aside>
