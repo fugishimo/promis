@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainNavigation from "@/components/MainNavigation";
@@ -78,9 +77,31 @@ const SortableWatchlistItem = ({ item }: { item: WatchlistItem }) => {
   );
 };
 
+const SortableCategory = ({ type, children }: { type: string; children: React.ReactNode }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: type });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {children}
+    </div>
+  );
+};
+
 const LiveMarkets = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("24h");
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(["STOCKS", "FUTURES", "CRYPTO"]));
+  const [categories, setCategories] = useState(["STOCKS", "FUTURES", "FOREX", "CRYPTO"]);
   const [items, setItems] = useState<WatchlistItem[]>([
     {
       id: "1",
@@ -118,7 +139,7 @@ const LiveMarkets = () => {
     })
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleItemDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
@@ -127,6 +148,19 @@ const LiveMarkets = () => {
         const newIndex = items.findIndex((item) => item.id === over.id);
         
         return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleCategoryDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      setCategories((categories) => {
+        const oldIndex = categories.indexOf(String(active.id));
+        const newIndex = categories.indexOf(String(over.id));
+        
+        return arrayMove(categories, oldIndex, newIndex);
       });
     }
   };
@@ -142,7 +176,7 @@ const LiveMarkets = () => {
   };
 
   // Filter out empty sections
-  const types = ["STOCKS", "FUTURES", "FOREX", "CRYPTO"].filter(type => 
+  const activeTypes = categories.filter(type => 
     items.some(item => item.type === type)
   );
 
@@ -227,33 +261,47 @@ const LiveMarkets = () => {
                     <DndContext
                       sensors={sensors}
                       collisionDetection={closestCenter}
-                      onDragEnd={handleDragEnd}
+                      onDragEnd={handleCategoryDragEnd}
                     >
-                      {types.map((type) => (
-                        <div key={type}>
-                          <button
-                            onClick={() => toggleType(type)}
-                            className="w-full px-4 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50 flex items-center"
-                          >
-                            <span className="transform transition-transform duration-200" style={{
-                              transform: expandedTypes.has(type) ? 'rotate(0deg)' : 'rotate(-90deg)'
-                            }}>▼</span>
-                            <span className="ml-2">{type}</span>
-                          </button>
-                          {expandedTypes.has(type) && (
-                            <SortableContext
-                              items={items.filter(item => item.type === type).map(item => item.id)}
-                              strategy={verticalListSortingStrategy}
-                            >
-                              {items
-                                .filter(item => item.type === type)
-                                .map((item) => (
-                                  <SortableWatchlistItem key={item.id} item={item} />
-                                ))}
-                            </SortableContext>
-                          )}
-                        </div>
-                      ))}
+                      <SortableContext
+                        items={activeTypes}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {activeTypes.map((type) => (
+                          <SortableCategory key={type} type={type}>
+                            <div>
+                              <button
+                                onClick={() => toggleType(type)}
+                                className="w-full px-4 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50 flex items-center group"
+                              >
+                                <GripVertical className="w-4 h-4 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity mr-2" />
+                                <span className="transform transition-transform duration-200" style={{
+                                  transform: expandedTypes.has(type) ? 'rotate(0deg)' : 'rotate(-90deg)'
+                                }}>▼</span>
+                                <span className="ml-2">{type}</span>
+                              </button>
+                              {expandedTypes.has(type) && (
+                                <DndContext
+                                  sensors={sensors}
+                                  collisionDetection={closestCenter}
+                                  onDragEnd={handleItemDragEnd}
+                                >
+                                  <SortableContext
+                                    items={items.filter(item => item.type === type).map(item => item.id)}
+                                    strategy={verticalListSortingStrategy}
+                                  >
+                                    {items
+                                      .filter(item => item.type === type)
+                                      .map((item) => (
+                                        <SortableWatchlistItem key={item.id} item={item} />
+                                      ))}
+                                  </SortableContext>
+                                </DndContext>
+                              )}
+                            </div>
+                          </SortableCategory>
+                        ))}
+                      </SortableContext>
                     </DndContext>
                   </div>
                 </div>
