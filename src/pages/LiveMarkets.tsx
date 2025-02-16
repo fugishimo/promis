@@ -158,31 +158,8 @@ const LiveMarkets = () => {
             </header>
 
             <div className="flex gap-6">
-              <div className="flex-1 space-y-6">
-                {mockUpdates.map((update) => (
-                  <article
-                    key={update.id}
-                    className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200 animate-fadeIn"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h2 className="text-xl font-semibold text-neutral-900">
-                          {update.title}
-                        </h2>
-                        <div className="flex items-center space-x-3 mt-2">
-                          <span className="text-primary font-medium">
-                            {update.analyst}
-                          </span>
-                          <span className="text-neutral-500 text-sm">
-                            {update.time}
-                          </span>
-                        </div>
-                      </div>
-                      <TrendingUp className="w-5 h-5 text-accent" />
-                    </div>
-                    <p className="text-neutral-600">{update.content}</p>
-                  </article>
-                ))}
+              <div className="flex-1">
+                {/* Main content area */}
               </div>
 
               <aside className="w-[400px] space-y-6">
