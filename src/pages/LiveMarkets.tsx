@@ -1,16 +1,26 @@
+
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainNavigation from "@/components/MainNavigation";
-import { MessageCircle, TrendingUp, Newspaper, Plus, MoreHorizontal, PieChart } from "lucide-react";
+import { TrendingUp, Newspaper, Plus, MoreHorizontal, PieChart, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface MarketUpdate {
-  id: number;
-  title: string;
-  analyst: string;
-  time: string;
-  content: string;
-}
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type TimePeriod = "24h" | "7d" | "90d" | "1y" | "all";
 
@@ -25,56 +35,101 @@ interface WatchlistItem {
   icon?: string;
 }
 
-const mockUpdates: MarketUpdate[] = [
-  {
-    id: 1,
-    title: "BTC/USD Technical Update",
-    analyst: "CryptoWhisperer",
-    time: "2 minutes ago",
-    content: "Key resistance at $48,500, watch for breakout confirmation",
-  },
-  {
-    id: 2,
-    title: "SPX Market Structure",
-    analyst: "TechAnalyst",
-    time: "5 minutes ago",
-    content: "Market showing signs of distribution, key support at 4,800",
-  },
-];
+const SortableWatchlistItem = ({ item }: { item: WatchlistItem }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: item.id });
 
-const mockWatchlist: WatchlistItem[] = [
-  {
-    id: "1",
-    type: "STOCKS",
-    symbol: "NFLX",
-    name: "Netflix",
-    price: 1058.60,
-    change: 14.91,
-    changePercent: 1.43,
-  },
-  {
-    id: "2",
-    type: "FUTURES",
-    symbol: "USOIL",
-    name: "Crude Oil",
-    price: 70.49,
-    change: -0.97,
-    changePercent: -1.35,
-  },
-  {
-    id: "3",
-    type: "CRYPTO",
-    symbol: "BTCUSD",
-    name: "Bitcoin",
-    price: 97658,
-    change: 67,
-    changePercent: 0.07,
-  }
-];
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="px-4 py-2 hover:bg-neutral-50 grid grid-cols-[auto,1fr,1fr,1fr,1fr] gap-4 text-sm items-center group"
+    >
+      <button
+        className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="w-4 h-4 text-neutral-400" />
+      </button>
+      <div className="font-medium text-neutral-900">
+        {item.symbol}
+      </div>
+      <div className="text-right text-neutral-900">
+        {item.price.toLocaleString()}
+      </div>
+      <div className={`text-right ${item.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {item.change >= 0 ? '+' : ''}{item.change}
+      </div>
+      <div className={`text-right ${item.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {item.changePercent >= 0 ? '+' : ''}{item.changePercent}%
+      </div>
+    </div>
+  );
+};
 
 const LiveMarkets = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("24h");
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(["STOCKS", "FUTURES", "CRYPTO"]));
+  const [items, setItems] = useState<WatchlistItem[]>([
+    {
+      id: "1",
+      type: "STOCKS",
+      symbol: "NFLX",
+      name: "Netflix",
+      price: 1058.60,
+      change: 14.91,
+      changePercent: 1.43,
+    },
+    {
+      id: "2",
+      type: "FUTURES",
+      symbol: "USOIL",
+      name: "Crude Oil",
+      price: 70.49,
+      change: -0.97,
+      changePercent: -1.35,
+    },
+    {
+      id: "3",
+      type: "CRYPTO",
+      symbol: "BTCUSD",
+      name: "Bitcoin",
+      price: 97658,
+      change: 67,
+      changePercent: 0.07,
+    }
+  ]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      setItems((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
 
   const toggleType = (type: string) => {
     const newExpandedTypes = new Set(expandedTypes);
@@ -85,6 +140,11 @@ const LiveMarkets = () => {
     }
     setExpandedTypes(newExpandedTypes);
   };
+
+  // Filter out empty sections
+  const types = ["STOCKS", "FUTURES", "FOREX", "CRYPTO"].filter(type => 
+    items.some(item => item.type === type)
+  );
 
   return (
     <SidebarProvider>
@@ -180,50 +240,44 @@ const LiveMarkets = () => {
                     </div>
                   </div>
                   <div className="divide-y divide-neutral-100">
-                    <div className="px-4 py-2 text-sm text-neutral-500 grid grid-cols-4 gap-4">
+                    <div className="px-4 py-2 text-sm text-neutral-500 grid grid-cols-[auto,1fr,1fr,1fr,1fr] gap-4">
+                      <div className="w-4"></div>
                       <div>Symbol</div>
                       <div className="text-right">Last</div>
                       <div className="text-right">Chg</div>
                       <div className="text-right">Chg%</div>
                     </div>
-                    {["STOCKS", "FUTURES", "FOREX", "CRYPTO"].map((type) => (
-                      <div key={type}>
-                        <button
-                          onClick={() => toggleType(type)}
-                          className="w-full px-4 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50 flex items-center"
-                        >
-                          <span className="transform transition-transform duration-200" style={{
-                            transform: expandedTypes.has(type) ? 'rotate(0deg)' : 'rotate(-90deg)'
-                          }}>▼</span>
-                          <span className="ml-2">{type}</span>
-                        </button>
-                        {expandedTypes.has(type) && (
-                          <div>
-                            {mockWatchlist
-                              .filter(item => item.type === type)
-                              .map((item) => (
-                                <div
-                                  key={item.id}
-                                  className="px-4 py-2 hover:bg-neutral-50 grid grid-cols-4 gap-4 text-sm"
-                                >
-                                  <div className="font-medium text-neutral-900">
-                                    {item.symbol}
-                                  </div>
-                                  <div className="text-right text-neutral-900">
-                                    {item.price.toLocaleString()}
-                                  </div>
-                                  <div className={`text-right ${item.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                    {item.change >= 0 ? '+' : ''}{item.change}
-                                  </div>
-                                  <div className={`text-right ${item.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                    {item.changePercent >= 0 ? '+' : ''}{item.changePercent}%
-                                  </div>
-                                </div>
-                              ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      {types.map((type) => (
+                        <div key={type}>
+                          <button
+                            onClick={() => toggleType(type)}
+                            className="w-full px-4 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50 flex items-center"
+                          >
+                            <span className="transform transition-transform duration-200" style={{
+                              transform: expandedTypes.has(type) ? 'rotate(0deg)' : 'rotate(-90deg)'
+                            }}>▼</span>
+                            <span className="ml-2">{type}</span>
+                          </button>
+                          {expandedTypes.has(type) && (
+                            <SortableContext
+                              items={items.filter(item => item.type === type).map(item => item.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              {items
+                                .filter(item => item.type === type)
+                                .map((item) => (
+                                  <SortableWatchlistItem key={item.id} item={item} />
+                                ))}
+                            </SortableContext>
+                          )}
+                        </div>
+                      ))}
+                    </DndContext>
                   </div>
                 </div>
               </aside>
