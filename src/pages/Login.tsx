@@ -1,51 +1,16 @@
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { EmailLoginForm } from "@/components/auth/EmailLoginForm";
+import { WalletConnections } from "@/components/auth/WalletConnections";
+import { Divider } from "@/components/auth/Divider";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const handleEmailLogin = async () => {
-    try {
-      setIsLoading(true);
-      
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: window.location.origin,
-        },
-      });
-
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error.message,
-        });
-        return;
-      }
-
-      toast({
-        title: "Check your email",
-        description: "We sent you a magic link to log in.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleGoogleLogin = async () => {
     try {
@@ -109,94 +74,13 @@ const Login = () => {
             Continue with Google
           </Button>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">
-                Or continue with email
-              </span>
-            </div>
-          </div>
+          <Divider text="Or continue with email" />
 
-          <div className="space-y-4">
-            <Input
-              type="email"
-              placeholder="Enter Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-12"
-            />
-            <Button 
-              className="w-full h-12 bg-primary hover:bg-primary/90"
-              onClick={handleEmailLogin}
-              disabled={isLoading}
-            >
-              {isLoading ? "Sending..." : "Continue with Email"}
-            </Button>
-          </div>
+          <EmailLoginForm />
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">
-                Or connect wallet
-              </span>
-            </div>
-          </div>
+          <Divider text="Or connect wallet" />
 
-          <div className="grid grid-cols-4 gap-4">
-            <Button
-              variant="outline"
-              className="p-4 h-auto aspect-square flex items-center justify-center hover:bg-muted"
-              onClick={() => console.log("Coinbase Wallet")}
-            >
-              <img
-                src="/coinbase.svg"
-                alt="Coinbase"
-                className="w-8 h-8"
-              />
-            </Button>
-            
-            <Button
-              variant="outline"
-              className="p-4 h-auto aspect-square flex items-center justify-center hover:bg-muted"
-              onClick={() => console.log("MetaMask")}
-            >
-              <img
-                src="/metamask.svg"
-                alt="MetaMask"
-                className="w-8 h-8"
-              />
-            </Button>
-            
-            <Button
-              variant="outline"
-              className="p-4 h-auto aspect-square flex items-center justify-center hover:bg-muted"
-              onClick={() => console.log("Phantom")}
-            >
-              <img
-                src="/phantom.svg"
-                alt="Phantom"
-                className="w-8 h-8"
-              />
-            </Button>
-
-            <Button
-              variant="outline"
-              className="p-4 h-auto aspect-square flex items-center justify-center hover:bg-muted"
-              onClick={() => console.log("WalletConnect")}
-            >
-              <img
-                src="/walletconnect.svg"
-                alt="WalletConnect"
-                className="w-8 h-8"
-              />
-            </Button>
-          </div>
+          <WalletConnections />
         </div>
 
         <p className="text-center text-sm text-muted-foreground">
