@@ -47,6 +47,31 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred.",
+      });
+    }
+  };
+
   // Listen for auth state changes
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_IN" && session) {
@@ -74,7 +99,7 @@ const Login = () => {
           <Button
             variant="outline"
             className="w-full bg-white hover:bg-neutral-50 text-black font-medium h-12"
-            onClick={() => console.log("Google login")}
+            onClick={handleGoogleLogin}
           >
             <img
               src="/google.svg"
