@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
-import { PhantomProvider } from '@phantom-labs/sdk';
 import { Connection } from '@solana/web3.js';
 import { createWalletClient, custom } from '@wagmi/core';
 
@@ -32,7 +31,7 @@ export const WalletConnections = () => {
           description: "Coinbase Wallet connected successfully",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -63,7 +62,7 @@ export const WalletConnections = () => {
           description: "MetaMask connected successfully",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -96,7 +95,7 @@ export const WalletConnections = () => {
           description: "Phantom wallet connected successfully",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -107,6 +106,10 @@ export const WalletConnections = () => {
 
   const handleWalletConnect = async () => {
     try {
+      if (!window.ethereum) {
+        throw new Error("No Web3 provider found");
+      }
+
       const walletClient = createWalletClient({
         transport: custom(window.ethereum)
       });
@@ -114,12 +117,21 @@ export const WalletConnections = () => {
       const [address] = await walletClient.requestAddresses();
 
       if (address) {
+        const { error } = await supabase.auth.updateUser({
+          data: { 
+            wallet_address: address,
+            wallet_type: 'walletconnect'
+          }
+        });
+
+        if (error) throw error;
+
         toast({
           title: "Success",
           description: "WalletConnect connected successfully",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
