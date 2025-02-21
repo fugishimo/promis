@@ -21,8 +21,12 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <PrivyProvider
       appId="YOUR_PRIVY_APP_ID"
-      onSuccess={(user) => {
-        console.log(`User ${user.id} logged in!`);
+      config={{
+        loginMethods: ['email', 'wallet'],
+        appearanceSettings: {
+          theme: 'light',
+          accentColor: '#676FFF',
+        },
       }}
     >
       <TooltipProvider>
