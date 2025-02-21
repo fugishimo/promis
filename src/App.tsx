@@ -23,7 +23,11 @@ const App = () => (
       appId="YOUR_PRIVY_APP_ID"
       config={{
         loginMethods: ['email', 'wallet'],
-        defaultChain: 1,
+        defaultChain: {
+          id: 1,
+          name: 'Ethereum',
+          rpcUrl: 'https://eth-mainnet.g.alchemy.com/v2/your-api-key'
+        },
         appearance: {
           theme: 'light',
           accentColor: '#676FFF',
