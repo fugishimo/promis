@@ -7,6 +7,7 @@ export const WalletConnections = () => {
       <Button
         variant="outline"
         className="p-4 h-auto aspect-square flex items-center justify-center hover:bg-muted"
+        onClick={() => console.log("Coinbase Wallet")}
       >
         <img
           src="/coinbase.svg"
@@ -18,6 +19,7 @@ export const WalletConnections = () => {
       <Button
         variant="outline"
         className="p-4 h-auto aspect-square flex items-center justify-center hover:bg-muted"
+        onClick={() => console.log("MetaMask")}
       >
         <img
           src="/metamask.svg"
@@ -29,6 +31,7 @@ export const WalletConnections = () => {
       <Button
         variant="outline"
         className="p-4 h-auto aspect-square flex items-center justify-center hover:bg-muted"
+        onClick={() => console.log("Phantom")}
       >
         <img
           src="/phantom.svg"
@@ -40,6 +43,7 @@ export const WalletConnections = () => {
       <Button
         variant="outline"
         className="p-4 h-auto aspect-square flex items-center justify-center hover:bg-muted"
+        onClick={() => console.log("WalletConnect")}
       >
         <img
           src="/walletconnect.svg"
