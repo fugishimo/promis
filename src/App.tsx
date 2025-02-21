@@ -23,8 +23,11 @@ const App = () => (
       appId="YOUR_PRIVY_APP_ID"
       config={{
         loginMethods: ['email', 'wallet'],
-        theme: 'light',
-        accentColor: '#676FFF',
+        defaultChainId: 1,
+        appearance: {
+          theme: 'light',
+          accentColor: '#676FFF',
+        }
       }}
     >
       <TooltipProvider>
