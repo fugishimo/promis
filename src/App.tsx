@@ -23,7 +23,7 @@ const App = () => (
       appId="YOUR_PRIVY_APP_ID"
       config={{
         loginMethods: ['email', 'wallet'],
-        defaultChainId: 1,
+        defaultChain: 1,
         appearance: {
           theme: 'light',
           accentColor: '#676FFF',
