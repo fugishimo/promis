@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClient Provider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
     <PrivyProvider
       appId="YOUR_PRIVY_APP_ID"
       onSuccess={(user) => {
