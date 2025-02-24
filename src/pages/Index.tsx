@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainNavigation from "@/components/MainNavigation";
@@ -6,10 +5,12 @@ import Feed from "@/components/Feed";
 import RightSidebar from "@/components/RightSidebar";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { usePrivy } from '@privy-io/react-auth';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<"following" | "forYou">("forYou");
   const navigate = useNavigate();
+  const { login, logout, authenticated } = usePrivy();
 
   return (
     <SidebarProvider>
@@ -21,12 +22,21 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <h1 className="text-4xl font-bold text-foreground"></h1>
                 <div className="flex items-center space-x-4">
-                  <Button
-                    onClick={() => navigate("/login")}
-                    className="px-6 py-2 text-white bg-primary hover:bg-primary-dark transition-colors"
-                  >
-                    Login
-                  </Button>
+                  {authenticated ? (
+                    <Button
+                      onClick={logout}
+                      className="px-6 py-2 text-white bg-primary hover:bg-primary-dark transition-colors"
+                    >
+                      Log out
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={login}
+                      className="px-6 py-2 text-white bg-primary hover:bg-primary-dark transition-colors"
+                    >
+                      Login
+                    </Button>
+                  )}
                 </div>
               </div>
               <div className="mt-8 flex space-x-4">
