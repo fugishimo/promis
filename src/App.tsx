@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,28 +11,41 @@ import LiveMarkets from "./pages/LiveMarkets";
 import VerifiedAnalysts from "./pages/VerifiedAnalysts";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import { PrivyProvider } from '@privy-io/react-auth';
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/trending" element={<TrendingCharts />} />
-          <Route path="/publish" element={<Publish />} />
-          <Route path="/live-markets" element={<LiveMarkets />} />
-          <Route path="/verified-analysts" element={<VerifiedAnalysts />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <PrivyProvider
+    appId={import.meta.env.VITE_PRIVY_APP_ID}
+    config={{
+      loginMethods: ['email', 'wallet','google', 'farcaster'],
+      appearance: {
+        theme: 'light',
+        accentColor: '#0EA5E9', // Matches your primary color
+        showWalletLoginFirst: false,
+      },
+    }}
+  >
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/trending" element={<TrendingCharts />} />
+            <Route path="/publish" element={<Publish />} />
+            <Route path="/live-markets" element={<LiveMarkets />} />
+            <Route path="/verified-analysts" element={<VerifiedAnalysts />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </PrivyProvider>
 );
 
 export default App;
