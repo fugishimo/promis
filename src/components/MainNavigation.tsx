@@ -1,5 +1,5 @@
-
-import { Home, TrendingUp, PenTool, BarChart2, Users, Settings } from "lucide-react";
+import { Home, TrendingUp, PenTool, BarChart2, Users, Settings, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ const navigationItems = [
   { title: "Publish", icon: PenTool, url: "/publish" },
   { title: "Live Markets", icon: BarChart2, url: "/live-markets" },
   { title: "Verified Analysts", icon: Users, url: "/verified-analysts" },
+  { title: "Profile", icon: User, url: "/profile" },
   { title: "Settings", icon: Settings, url: "/settings" },
 ];
 
@@ -36,13 +37,13 @@ const MainNavigation = () => {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a
-                      href={item.url}
+                    <Link
+                      to={item.url}
                       className="flex items-center space-x-3 px-6 py-3 text-neutral-600 hover:bg-neutral-100 transition-colors"
                     >
                       <item.icon className="w-5 h-5" />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
