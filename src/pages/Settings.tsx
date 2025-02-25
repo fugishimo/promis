@@ -29,24 +29,6 @@ const Settings = () => {
             <div className="space-y-6">
               <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200">
                 <h2 className="text-lg font-semibold text-neutral-900 mb-6 flex items-center">
-                  <User className="w-5 h-5 mr-2" />
-                  Account Settings
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-neutral-700">Username</label>
-                    <Input defaultValue="user123" className="mt-1" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-neutral-700">Email</label>
-                    <Input defaultValue="user@example.com" className="mt-1" />
-                  </div>
-                  <Button variant="outline">Update Account</Button>
-                </div>
-              </section>
-
-              <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200">
-                <h2 className="text-lg font-semibold text-neutral-900 mb-6 flex items-center">
                   <Bell className="w-5 h-5 mr-2" />
                   Notification Preferences
                 </h2>
@@ -109,14 +91,6 @@ const Settings = () => {
                     <Moon className="w-4 h-4 text-neutral-500" />
                   </div>
                 </div>
-              </section>
-
-              <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200">
-                <h2 className="text-lg font-semibold text-neutral-900 mb-6 flex items-center">
-                  <Wallet className="w-5 h-5 mr-2" />
-                  Wallet Integration
-                </h2>
-                <Button variant="outline" className="w-full">Connect Wallet</Button>
               </section>
 
               <section className="bg-white rounded-xl p-6 shadow-sm border border-neutral-200">

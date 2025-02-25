@@ -12,6 +12,7 @@ import VerifiedAnalysts from "./pages/VerifiedAnalysts";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { PrivyProvider } from '@privy-io/react-auth';
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/publish" element={<Publish />} />
             <Route path="/live-markets" element={<LiveMarkets />} />
             <Route path="/verified-analysts" element={<VerifiedAnalysts />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

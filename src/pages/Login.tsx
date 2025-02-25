@@ -1,14 +1,28 @@
 import { useNavigate } from "react-router-dom";
 import { usePrivy } from '@privy-io/react-auth';
+import { useEffect } from 'react';
+import { profileService } from "@/services/profileService";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, logout, ready, authenticated } = usePrivy();
+  const { login, logout, ready, authenticated, user } = usePrivy();
+  const { toast } = useToast();
 
-  // Redirect if already authenticated
-  if (authenticated) {
-    navigate("/");
-  }
+  useEffect(() => {
+    if (authenticated && user) {
+      // Check if user has a profile
+      profileService.getProfile(user.id)
+        .then((profile) => {
+          // If profile exists, redirect to home
+          navigate("/");
+        })
+        .catch((error) => {
+          // If profile doesn't exist, redirect to profile page
+          navigate("/profile");
+        });
+    }
+  }, [authenticated, user, navigate]);
 
   if (!ready) {
     return <div>Loading...</div>;

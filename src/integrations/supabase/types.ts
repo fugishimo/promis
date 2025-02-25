@@ -6,9 +6,38 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
+      user_profiles: {
+        Row: {
+          id: string;
+          username: string;
+          profile_name: string | null;
+          bio: string | null;
+          location: string | null;
+          profile_pic: string | null;
+          linked_wallet: string;
+          last_updated: string;
+          username_updated_at: string;
+        };
+        Insert: {
+          id: string;
+          username: string;
+          profile_name?: string | null;
+          bio?: string | null;
+          location?: string | null;
+          profile_pic?: string | null;
+          linked_wallet: string;
+        };
+        Update: {
+          username?: string;
+          profile_name?: string | null;
+          bio?: string | null;
+          location?: string | null;
+          profile_pic?: string | null;
+        };
+      };
       profiles: {
         Row: {
           avatar_url: string | null
