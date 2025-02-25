@@ -6,62 +6,56 @@ import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, logout, ready, authenticated, user } = usePrivy();
+  const { login, ready, authenticated, user } = usePrivy();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (authenticated && user) {
-      // Check if user has a profile
-      profileService.getProfile(user.id)
-        .then((profile) => {
-          // If profile exists, redirect to home
-          navigate("/");
-        })
-        .catch((error) => {
-          // If profile doesn't exist, redirect to profile page
+    const checkUserProfile = async () => {
+      if (authenticated && user) {
+        try {
+          console.log("Checking profile for user:", user.id);
+          const profile = await profileService.getProfile(user.id);
+          
+          if (profile) {
+            console.log("Profile found, navigating to home");
+            navigate("/");
+          } else {
+            console.log("No profile found, redirecting to profile creation");
+            navigate("/profile");
+          }
+        } catch (error) {
+          console.error("Error checking profile:", error);
+          toast({
+            title: "Error",
+            description: "Failed to check profile status",
+            variant: "destructive",
+          });
           navigate("/profile");
-        });
-    }
-  }, [authenticated, user, navigate]);
+        }
+      }
+    };
+
+    checkUserProfile();
+  }, [authenticated, user, navigate, toast]);
 
   if (!ready) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8 p-8 bg-card rounded-xl border border-border shadow-lg">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Welcome back</h1>
-          <p className="text-muted-foreground">Sign in to your account</p>
-        </div>
-
-        {authenticated ? (
-          <button
-            onClick={logout}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 rounded-lg font-medium"
-          >
-            Sign Out
-          </button>
-        ) : (
-          <button
-            onClick={login}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 rounded-lg font-medium"
-          >
-            Sign In
-          </button>
-        )}
-
-        <p className="text-center text-sm text-muted-foreground">
-          By continuing, you agree to our{" "}
-          <a href="/terms" className="text-primary hover:underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="/privacy" className="text-primary hover:underline">
-            Privacy Policy
-          </a>
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-8">Welcome to Promis</h1>
+        <button
+          onClick={login}
+          className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          Login
+        </button>
       </div>
     </div>
   );
