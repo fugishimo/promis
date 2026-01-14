@@ -16,40 +16,49 @@ interface ProfileUpdate {
 }
 
 export const profileService = {
-  async getOrCreateUUID(privyId: string) {
-    console.log("Getting or creating UUID for Privy ID:", privyId);
+  async getOrCreateUUID(privyId: string): Promise<string> {
+    console.log("Starting getOrCreateUUID for Privy ID:", privyId);
     
     try {
-      // First, try to get existing mapping
-      const { data: existingMapping, error: fetchError } = await supabase
+      // First, check if a mapping already exists
+      const { data: existingMapping, error: lookupError } = await supabase
         .from("user_id_mapping")
         .select("uuid")
         .eq("privy_id", privyId)
         .single();
 
-      if (existingMapping?.uuid) {
-        console.log("Found existing UUID mapping:", existingMapping.uuid);
+      if (lookupError && lookupError.code !== 'PGRST116') { // Ignore "not found" error
+        console.error("Error looking up existing mapping:", lookupError);
+        throw lookupError;
+      }
+
+      // If mapping exists, return the UUID
+      if (existingMapping) {
+        console.log("Found existing mapping:", existingMapping);
         return existingMapping.uuid;
       }
 
-      // If no mapping exists, create one with a new UUID
-      const newUuid = uuidv4();
-      const { data: newMapping, error: insertError } = await supabase
+      // If no mapping exists, create a new UUID and mapping
+      console.log("No existing mapping found, creating new UUID");
+      const newUUID = crypto.randomUUID();
+
+      const { error: insertError } = await supabase
         .from("user_id_mapping")
-        .insert([{ 
+        .insert([{
           privy_id: privyId,
-          uuid: newUuid
+          uuid: newUUID,
+          created_at: new Date().toISOString()
         }])
-        .select("uuid")
+        .select()
         .single();
 
       if (insertError) {
-        console.error("Error creating UUID mapping:", insertError);
+        console.error("Error creating new mapping:", insertError);
         throw insertError;
       }
 
-      console.log("Created new UUID mapping:", newUuid);
-      return newUuid;
+      console.log("Successfully created new mapping with UUID:", newUUID);
+      return newUUID;
     } catch (error) {
       console.error("Error in getOrCreateUUID:", error);
       throw error;
@@ -95,11 +104,70 @@ export const profileService = {
         throw new Error("Username is already taken");
       }
 
-      // Get or create UUID for this Privy ID
-      const uuid = await this.getOrCreateUUID(privyId);
+      // Get the existing UUID from mapping
+      const { data: existingMapping } = await supabase
+        .from("user_id_mapping")
+        .select("uuid")
+        .eq("privy_id", privyId)
+        .single();
 
-      // Create the profile with the UUID
-      const { data, error } = await supabase
+      let uuid;
+      if (existingMapping) {
+        uuid = existingMapping.uuid;
+      } else {
+        // If no mapping exists, create new UUID and mapping
+        uuid = crypto.randomUUID();
+        
+        // First create the user
+        const { error: userError } = await supabase
+          .from("users")
+          .insert([{ 
+            id: uuid,
+            created_at: new Date().toISOString()
+          }]);
+
+        if (userError) {
+          console.error("User creation error:", userError);
+          throw userError;
+        }
+
+        // Then create the mapping
+        const { error: mappingError } = await supabase
+          .from("user_id_mapping")
+          .insert([{
+            privy_id: privyId,
+            uuid: uuid
+          }]);
+
+        if (mappingError) {
+          console.error("Mapping creation error:", mappingError);
+          throw mappingError;
+        }
+      }
+
+      // Verify user exists and create if it doesn't
+      const { data: userExists } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", uuid)
+        .single();
+
+      if (!userExists) {
+        const { error: userError } = await supabase
+          .from("users")
+          .insert([{ 
+            id: uuid,
+            created_at: new Date().toISOString()
+          }]);
+
+        if (userError) {
+          console.error("User creation error:", userError);
+          throw userError;
+        }
+      }
+
+      // Create the profile
+      const { data, error: profileError } = await supabase
         .from("profiles")
         .insert([{
           id: uuid,
@@ -110,9 +178,9 @@ export const profileService = {
         .select()
         .single();
 
-      if (error) {
-        console.error("Profile creation error:", error);
-        throw error;
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        throw profileError;
       }
 
       return data;

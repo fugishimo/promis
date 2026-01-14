@@ -17,7 +17,6 @@ const navigationItems = [
   { title: "Publish", icon: PenTool, url: "/publish" },
   { title: "Live Markets", icon: BarChart2, url: "/live-markets" },
   { title: "Verified Analysts", icon: Users, url: "/verified-analysts" },
-  { title: "Profile", icon: User, url: "/profile" },
   { title: "Settings", icon: Settings, url: "/settings" },
 ];
 

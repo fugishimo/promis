@@ -10,32 +10,29 @@ const Login = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkUserProfile = async () => {
+    const handleAuthentication = async () => {
       if (authenticated && user) {
         try {
-          console.log("Checking profile for user:", user.id);
-          const profile = await profileService.getProfile(user.id);
+          console.log("User authenticated, checking Privy ID:", user.id);
           
-          if (profile) {
-            console.log("Profile found, navigating to home");
-            navigate("/");
-          } else {
-            console.log("No profile found, redirecting to profile creation");
-            navigate("/profile");
-          }
+          // Check if user exists and create if they don't
+          const uuid = await profileService.getOrCreateUUID(user.id);
+          console.log("UUID retrieved/created:", uuid);
+          
+          // Redirect to home page
+          navigate("/");
         } catch (error) {
-          console.error("Error checking profile:", error);
+          console.error("Authentication flow error:", error);
           toast({
             title: "Error",
-            description: "Failed to check profile status",
+            description: "Failed to complete login process",
             variant: "destructive",
           });
-          navigate("/profile");
         }
       }
     };
 
-    checkUserProfile();
+    handleAuthentication();
   }, [authenticated, user, navigate, toast]);
 
   if (!ready) {

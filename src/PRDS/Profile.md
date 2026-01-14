@@ -16,7 +16,7 @@ The Profile Page allows users to **edit and manage** their personal information,
 ## **2. Profile Data Management**
 ### **Stored User Information (in Supabase)**
 Each user profile will be linked to **Privy's User ID** and include the following fields:
-- **Username** (must be unique, 7-day cooldown for changes)
+- **Username** (must be unique, validated on creation and update)
 - **Profile Name** (display name, separate from username)
 - **Bio** (short description)
 - **Location** (optional field)
@@ -26,24 +26,25 @@ Each user profile will be linked to **Privy's User ID** and include the followin
 
 ### **Profile Editing Rules:**
 - Users can update **Profile Name, Bio, Location, and Profile Picture** at any time.
-- **Usernames must be unique** and can only be changed **once every 7 days**.
+- **Usernames must be unique** and are validated against existing usernames.
 - The **Save Changes button** must be clicked to apply profile updates.
 - **Linked Wallet is read-only** and cannot be changed from the Profile page.
 
 ### **Profile Picture Upload Rules:**
-- Users can **upload a new profile picture**.
-- A **crop/resize option** is provided before finalizing the upload.
-- Image is stored in **Supabase storage**, linked to the user's profile.
-- Default avatar is assigned if no picture is uploaded.
+- Users can **upload a new profile picture** through the UI.
+- Images are stored in **Supabase storage** under a user-specific path.
+- Public URL is generated for profile pictures.
+- Default avatar fallback is provided if no picture is uploaded.
 
 ---
 
 ## **3. Backend System & Database Handling**
-### **Database Structure (Supabase Table: `user_profiles`)**
+### **Database Structure (Supabase Tables)**
+#### **user_profiles Table:**
 | Column Name      | Data Type  | Description |
 |----------------|-----------|-------------|
 | `id`           | UUID (Primary Key) | Matches Privy's User ID |
-| `username`     | TEXT (Unique) | User-selected handle (7-day cooldown) |
+| `username`     | TEXT (Unique) | User-selected handle |
 | `profile_name` | TEXT | Display name |
 | `bio`          | TEXT | Short personal description |
 | `location`     | TEXT | Optional user location |
@@ -51,19 +52,27 @@ Each user profile will be linked to **Privy's User ID** and include the followin
 | `linked_wallet` | TEXT (Read-only) | Wallet address linked via Privy |
 | `last_updated` | TIMESTAMP | Last modification date |
 
-### **API Endpoints:**
-1. **GET /profile/{user_id}** → Retrieve user profile data.
-2. **PUT /profile/update** → Update profile fields (except username & wallet).
-3. **PUT /profile/update-username** → Change username (enforce 7-day cooldown).
-4. **POST /profile/upload-picture** → Upload and store new profile picture.
+### **Implemented Services:**
+1. **Profile Service**
+   - ✅ Get or create UUID mapping for Privy ID
+   - ✅ Profile creation with unique username validation
+   - ✅ Profile retrieval by Privy ID
+   - ✅ Profile updates with field validation
+   - ✅ Profile picture upload to Supabase storage
+
+2. **Authentication Flow**
+   - ✅ Privy integration for user authentication
+   - ✅ Automatic profile check on login
+   - ✅ Redirect to profile creation for new users
+   - ✅ Session management with Privy
 
 ---
 
 ## **4. Security & Performance Considerations**
-- **Unique username validation** to prevent duplicates.
-- **Rate limiting on profile updates** to prevent spam changes.
-- **Session-based access control** to prevent unauthorized profile modifications.
-- **Optimized queries & indexing** for fast profile retrieval.
+- ✅ **Unique username validation** implemented
+- ✅ **Profile data validation** using validation utils
+- ✅ **Secure file storage** in Supabase
+- ✅ **Authentication checks** before profile operations
 
 ---
 
@@ -76,59 +85,46 @@ Each user profile will be linked to **Privy's User ID** and include the followin
    - ✅ Navigation item added to MainNavigation
    - ✅ Authentication redirect logic implemented
    - ✅ Basic form layout with all required fields
-   - ✅ Profile picture upload UI (without functionality)
-   - ✅ Fixed navigation routing using React Router's Link component
+   - ✅ Profile picture upload UI with functionality
+   - ✅ Form validation implementation
+   - ✅ Error handling and notifications
 
-2. **UI Components Integrated:**
-   - ✅ Avatar component for profile picture
-   - ✅ Input fields for all profile data
-   - ✅ Form layout with Cards
-   - ✅ Toast notifications setup
-   - ✅ Basic responsive design
-
-3. **Backend Integration**
+2. **Backend Integration**
    - ✅ Supabase client setup
    - ✅ Database types definition
    - ✅ Profile service implementation
    - ✅ Basic CRUD operations structure
    - ✅ Initial profile creation on login
+   - ✅ Image upload to Supabase storage
+   - ✅ Username uniqueness validation
 
 ### **Pending Implementation:**
-1. **Backend Integration**
-   - ⏳ Image upload to Supabase storage
-   - ⏳ Username uniqueness validation
-   - ⏳ Username change cooldown logic
-
-2. **Features**
+1. **Features**
    - ⏳ Profile picture crop/resize functionality
-   - ⏳ Form validation
-   - ⏳ Error handling
-   - ⏳ Loading states
-   - ⏳ Success/error notifications
+   - ⏳ Username change cooldown logic
+   - ⏳ Advanced error handling
+   - ⏳ Loading state improvements
 
-3. **Security**
+2. **Security**
    - ⏳ Rate limiting
-   - ⏳ Data validation
-   - ⏳ Access control
-   - ⏳ Session management
+   - ⏳ Advanced access control
+   - ⏳ Enhanced session management
 
 ### **Next Steps:**
-1. Implement image upload functionality
-2. Add form validation and error handling
-3. Implement username uniqueness checks
-4. Add loading states and success/error notifications
-5. Implement username change cooldown logic
+1. Implement profile picture cropping
+2. Add username change cooldown mechanism
+3. Enhance loading states and error handling
+4. Implement rate limiting for profile updates
 
 ---
 
 ## **Latest Updates**
-- **[2024-XX-XX]** Initial Profile page component created
-- **[2024-XX-XX]** Added Profile route to App.tsx
-- **[2024-XX-XX]** Integrated basic UI components
-- **[2024-XX-XX]** Added authentication redirect logic
-- **[2024-XX-XX]** Implemented profile service with Supabase
-- **[2024-XX-XX]** Fixed navigation routing with React Router
-- **[2024-XX-XX]** Added initial profile creation on login
+- **[2024-XX-XX]** Implemented profile picture upload functionality
+- **[2024-XX-XX]** Added form validation with error handling
+- **[2024-XX-XX]** Integrated Supabase storage for profile pictures
+- **[2024-XX-XX]** Implemented username uniqueness validation
+- **[2024-XX-XX]** Added profile creation and update flows
+- **[2024-XX-XX]** Integrated toast notifications for user feedback
 
 ---
 

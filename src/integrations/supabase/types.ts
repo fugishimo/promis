@@ -101,6 +101,23 @@ export interface Database {
         }
         Relationships: []
       }
+      user_id_mapping: {
+        Row: {
+          privy_id: string;
+          uuid: string;
+          created_at: string;
+        };
+        Insert: {
+          privy_id: string;
+          uuid: string;
+          created_at: string;
+        };
+        Update: {
+          privy_id?: string;
+          uuid?: string;
+          created_at?: string;
+        };
+      };
     }
     Views: {
       [_ in never]: never

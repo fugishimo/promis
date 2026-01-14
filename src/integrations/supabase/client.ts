@@ -5,4 +5,30 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false,
+    flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'x-client-info': '@supabase/auth-helpers-nextjs'  // Using a valid client info string
+    }
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 1
+    }
+  },
+  db: {
+    schema: 'public'
+  }
+});
+
+// Add a cleanup function that can be called when needed
+export const cleanupSupabaseConnections = () => {
+  supabase.removeAllChannels();
+  supabase.auth.signOut();
+};
