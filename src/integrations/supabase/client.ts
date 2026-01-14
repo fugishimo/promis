@@ -2,10 +2,33 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://agnifryeckicjfabfgtd.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnbmlmcnllY2tpY2pmYWJmZ3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAwODgxODIsImV4cCI6MjA1NTY2NDE4Mn0.JwAXIgteH-utmSvCDI5wxnVxRHFpx7XfKLPnk6hY1XM";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false,
+    flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'x-client-info': '@supabase/auth-helpers-nextjs'  // Using a valid client info string
+    }
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 1
+    }
+  },
+  db: {
+    schema: 'public'
+  }
+});
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+// Add a cleanup function that can be called when needed
+export const cleanupSupabaseConnections = () => {
+  supabase.removeAllChannels();
+  supabase.auth.signOut();
+};

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -19,7 +20,14 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [isNewUser, setIsNewUser] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(true);
+  const [formData, setFormData] = useState({
+    username: "",
+    displayName: "",
+    bio: "",
+    location: ""
+  });
+  const [error, setError] = useState("");
   
   const [profileData, setProfileData] = useState({
     username: "",
@@ -30,32 +38,38 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    if (!authenticated) {
+    if (!authenticated || !user) {
       navigate("/login");
       return;
     }
 
-    const checkProfile = async () => {
+    // Check if user already has a profile
+    const checkExistingProfile = async () => {
       try {
-        setIsLoading(true);
-        const profile = await profileService.getProfile(user!.id);
-        setProfileData({
-          username: profile.username,
-          profileName: profile.profile_name || "",
-          bio: profile.bio || "",
-          location: profile.location || "",
-          profilePic: profile.profile_pic || "",
-        });
-        setIsNewUser(false);
+        const profile = await profileService.getProfile(user.id);
+        if (profile) {
+          setFormData({
+            username: profile.username || "",
+            displayName: profile.display_name || "",
+            bio: profile.bio || "",
+            location: profile.location || ""
+          });
+          setProfileData({
+            username: profile.username || "",
+            profileName: profile.display_name || "",
+            bio: profile.bio || "",
+            location: profile.location || "",
+            profilePic: profile.profile_pic || "",
+          });
+          setIsNewUser(false);
+        }
       } catch (error) {
-        // If profile doesn't exist, this is a new user
+        console.error("Error fetching profile:", error);
         setIsNewUser(true);
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    checkProfile();
+    checkExistingProfile();
   }, [authenticated, user, navigate]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,16 +99,16 @@ const Profile = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    const usernameError = profileValidation.username(profileData.username);
+    const usernameError = profileValidation.username(formData.username);
     if (usernameError) newErrors.username = usernameError;
     
-    const profileNameError = profileValidation.profileName(profileData.profileName);
-    if (profileNameError) newErrors.profileName = profileNameError;
+    const displayNameError = profileValidation.profileName(formData.displayName);
+    if (displayNameError) newErrors.displayName = displayNameError;
     
-    const bioError = profileValidation.bio(profileData.bio);
+    const bioError = profileValidation.bio(formData.bio);
     if (bioError) newErrors.bio = bioError;
     
-    const locationError = profileValidation.location(profileData.location);
+    const locationError = profileValidation.location(formData.location);
     if (locationError) newErrors.location = locationError;
     
     setErrors(newErrors);
@@ -103,59 +117,49 @@ const Profile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     
-    // For new users, only validate username
-    if (isNewUser) {
-      const usernameError = profileValidation.username(profileData.username);
-      if (usernameError) {
-        setErrors({ username: usernameError });
-        return;
-      }
-    } else if (!validateForm()) {
+    if (!formData.username.trim()) {
+      setError("Username is required");
+      toast({
+        title: "Error",
+        description: "Username is required",
+        variant: "destructive",
+      });
       return;
     }
 
     try {
-      setIsSaving(true);
-      if (isNewUser) {
-        // Create new profile for new users
-        await profileService.createProfile(
-          user!.id, 
-          profileData.username
-        );
-        // Redirect to home after successful profile creation
-        navigate("/");
-      } else {
-        // Update existing profile
+      setIsLoading(true);
+      await profileService.createProfile(
+        user!.id,
+        formData.username.trim()
+      );
+
+      // If additional fields are filled, update the profile
+      if (formData.displayName || formData.bio || formData.location) {
         await profileService.updateProfile(user!.id, {
-          username: profileData.username,
-          profile_name: profileData.profileName,
-          bio: profileData.bio,
-          location: profileData.location,
-        });
-        toast({
-          title: "Success",
-          description: "Profile updated successfully",
+          display_name: formData.displayName,
+          bio: formData.bio,
+          location: formData.location
         });
       }
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("username")) {
-        setErrors({ username: "Username is already taken" });
-        toast({
-          title: "Error",
-          description: "Username is already taken",
-          variant: "destructive",
-        });
-      } else {
-        console.error("Profile error:", error); // Add this for debugging
-        toast({
-          title: "Error",
-          description: "Failed to update profile",
-          variant: "destructive",
-        });
-      }
+
+      toast({
+        title: "Success",
+        description: "Profile created successfully",
+      });
+      navigate("/");
+    } catch (error: any) {
+      console.error("Profile creation error:", error);
+      setError(error.message || "Failed to create profile");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create profile",
+        variant: "destructive",
+      });
     } finally {
-      setIsSaving(false);
+      setIsLoading(false);
     }
   };
 
@@ -215,15 +219,15 @@ const Profile = () => {
                       <Label htmlFor="username">Username*</Label>
                       <Input
                         id="username"
-                        value={profileData.username}
+                        value={formData.username}
                         onChange={(e) => {
-                          setProfileData(prev => ({...prev, username: e.target.value}));
+                          setFormData(prev => ({ ...prev, username: e.target.value }));
                           if (errors.username) {
                             setErrors(prev => ({...prev, username: ""}));
                           }
                         }}
+                        placeholder="Enter your username"
                         className={errors.username ? "border-red-500" : ""}
-                        required
                       />
                       {errors.username && (
                         <p className="text-sm text-red-500">{errors.username}</p>
@@ -231,35 +235,35 @@ const Profile = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="profileName">Display Name</Label>
+                      <Label htmlFor="displayName">Display Name</Label>
                       <Input
-                        id="profileName"
-                        value={profileData.profileName}
+                        id="displayName"
+                        value={formData.displayName}
                         onChange={(e) => {
-                          setProfileData(prev => ({...prev, profileName: e.target.value}));
-                          if (errors.profileName) {
-                            setErrors(prev => ({...prev, profileName: ""}));
+                          setFormData(prev => ({ ...prev, displayName: e.target.value }));
+                          if (errors.displayName) {
+                            setErrors(prev => ({...prev, displayName: ""}));
                           }
                         }}
-                        className={errors.profileName ? "border-red-500" : ""}
+                        placeholder="Enter your display name"
                       />
-                      {errors.profileName && (
-                        <p className="text-sm text-red-500">{errors.profileName}</p>
+                      {errors.displayName && (
+                        <p className="text-sm text-red-500">{errors.displayName}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="bio">Bio</Label>
-                      <Input
+                      <Textarea
                         id="bio"
-                        value={profileData.bio}
+                        value={formData.bio}
                         onChange={(e) => {
-                          setProfileData(prev => ({...prev, bio: e.target.value}));
+                          setFormData(prev => ({ ...prev, bio: e.target.value }));
                           if (errors.bio) {
                             setErrors(prev => ({...prev, bio: ""}));
                           }
                         }}
-                        className={errors.bio ? "border-red-500" : ""}
+                        placeholder="Tell us about yourself"
                       />
                       {errors.bio && (
                         <p className="text-sm text-red-500">{errors.bio}</p>
@@ -270,14 +274,14 @@ const Profile = () => {
                       <Label htmlFor="location">Location</Label>
                       <Input
                         id="location"
-                        value={profileData.location}
+                        value={formData.location}
                         onChange={(e) => {
-                          setProfileData(prev => ({...prev, location: e.target.value}));
+                          setFormData(prev => ({ ...prev, location: e.target.value }));
                           if (errors.location) {
                             setErrors(prev => ({...prev, location: ""}));
                           }
                         }}
-                        className={errors.location ? "border-red-500" : ""}
+                        placeholder="Enter your location"
                       />
                       {errors.location && (
                         <p className="text-sm text-red-500">{errors.location}</p>

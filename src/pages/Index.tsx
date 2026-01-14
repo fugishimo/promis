@@ -10,7 +10,7 @@ import { usePrivy } from '@privy-io/react-auth';
 const Index = () => {
   const [activeTab, setActiveTab] = useState<"following" | "forYou">("forYou");
   const navigate = useNavigate();
-  const { login, logout, authenticated } = usePrivy();
+  const { login, logout, authenticated, user } = usePrivy();
 
   return (
     <SidebarProvider>
@@ -22,6 +22,12 @@ const Index = () => {
               <div className="flex items-center justify-between">
                 <h1 className="text-4xl font-bold text-foreground"></h1>
                 <div className="flex items-center space-x-4">
+                  {authenticated && user && (
+                    <div className="bg-gray-100 px-4 py-2 rounded-lg">
+                      <span className="text-sm text-gray-600">Your Username:</span>
+                      <span className="ml-2 font-medium">{user.id}</span>
+                    </div>
+                  )}
                   {authenticated ? (
                     <Button
                       onClick={logout}
